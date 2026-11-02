@@ -23,6 +23,16 @@ let isVideoRecording = false;
 let audioCoordinates = null;
 let videoCoordinates = null;
 
+// Изменение состояния кнопки без удаления SVG
+function setRecordingState(button, isActive, activeLabel, inactiveLabel) {
+  button.classList.toggle('is-recording', isActive);
+  button.setAttribute(
+    'aria-label',
+    isActive ? activeLabel : inactiveLabel,
+  );
+  button.title = isActive ? activeLabel : inactiveLabel;
+}
+
 // Модальное окно для ручного ввода координат
 function requestManualCoordinates() {
   return new Promise((resolve) => {
@@ -32,16 +42,13 @@ function requestManualCoordinates() {
       <form class="coordinates-form">
         <h2>Не удалось определить местоположение</h2>
         <p>Введите координаты вручную:</p>
-
         <input
           class="coordinates-input"
           type="text"
           placeholder="51.50851, -0.12572"
           required
         >
-
         <p class="coordinates-error"></p>
-
         <div class="coordinates-buttons">
           <button type="submit">Подтвердить</button>
           <button type="button" class="cancel-button">Отмена</button>
@@ -67,7 +74,6 @@ function requestManualCoordinates() {
 
       try {
         const coordinates = parseCoordinates(coordinatesInput.value);
-
         finish(coordinates);
       } catch (err) {
         error.textContent = err.message;
@@ -75,13 +81,8 @@ function requestManualCoordinates() {
       }
     });
 
-    cancelButton.addEventListener('click', () => {
-      finish(null);
-    });
-
-    dialog.addEventListener('cancel', () => {
-      finish(null);
-    });
+    cancelButton.addEventListener('click', () => finish(null));
+    dialog.addEventListener('cancel', () => finish(null));
 
     dialog.showModal();
   });
@@ -102,9 +103,7 @@ function getCoordinates() {
           longitude: position.coords.longitude,
         });
       },
-      (error) => {
-        reject(error);
-      },
+      (error) => reject(error),
     );
   });
 }
@@ -130,9 +129,14 @@ const audioRecorder = new AudioRecorder((audioUrl) => {
   );
 
   audioCoordinates = null;
-
   isRecording = false;
-  audioButton.textContent = 'Записать аудио';
+
+  setRecordingState(
+    audioButton,
+    false,
+    'Остановить запись',
+    'Записать аудио',
+  );
 });
 
 // Создание видеозаписи
@@ -147,9 +151,14 @@ const videoRecorder = new VideoRecorder((videoUrl) => {
   );
 
   videoCoordinates = null;
-
   isVideoRecording = false;
-  videoButton.textContent = 'Записать видео';
+
+  setRecordingState(
+    videoButton,
+    false,
+    'Остановить запись',
+    'Записать видео',
+  );
 });
 
 // Добавление текстовых сообщений
@@ -157,19 +166,12 @@ form.addEventListener('submit', async (event) => {
   event.preventDefault();
 
   const text = input.value.trim();
-
   if (!text) return;
 
   const coordinates = await getCoordinatesWithFallback();
-
   if (!coordinates) return;
 
-  timeline.addPost(
-    text,
-    coordinates.latitude,
-    coordinates.longitude,
-  );
-
+  timeline.addPost(text, coordinates.latitude, coordinates.longitude);
   input.value = '';
 });
 
@@ -178,19 +180,21 @@ audioButton.addEventListener('click', async () => {
   if (!isRecording) {
     try {
       audioCoordinates = await getCoordinatesWithFallback();
-
       if (!audioCoordinates) return;
 
       await audioRecorder.start();
 
       isRecording = true;
-      audioButton.textContent = 'Остановить запись';
+
+      setRecordingState(
+        audioButton,
+        true,
+        'Остановить запись',
+        'Записать аудио',
+      );
     } catch (error) {
       audioCoordinates = null;
-
-      alert(
-        'Не удалось начать запись. Проверьте доступ к микрофону.',
-      );
+      alert('Не удалось начать запись. Проверьте доступ к микрофону.');
     }
   } else {
     audioRecorder.stop();
@@ -202,19 +206,21 @@ videoButton.addEventListener('click', async () => {
   if (!isVideoRecording) {
     try {
       videoCoordinates = await getCoordinatesWithFallback();
-
       if (!videoCoordinates) return;
 
       await videoRecorder.start();
 
       isVideoRecording = true;
-      videoButton.textContent = 'Остановить запись';
+
+      setRecordingState(
+        videoButton,
+        true,
+        'Остановить запись',
+        'Записать видео',
+      );
     } catch (error) {
       videoCoordinates = null;
-
-      alert(
-        'Не удалось начать запись. Проверьте доступ к камере и микрофону.',
-      );
+      alert('Не удалось начать запись. Проверьте доступ к камере и микрофону.');
     }
   } else {
     videoRecorder.stop();

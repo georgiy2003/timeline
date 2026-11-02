@@ -33,12 +33,16 @@ body {
 }
 
 .timeline__form {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   padding: 15px;
   border-top: 1px solid #ddd;
 }
 
 .timeline__input {
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   padding: 14px;
   border: 1px solid #ccc;
   border-radius: 5px;
@@ -50,11 +54,66 @@ body {
   border-color: #777;
 }
 
-@media (max-width: 600px) {
-  .container {
-    margin: 15px auto;
-    padding: 10px;
-  }
+.media-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.media-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background-color: #2675d8;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.media-button:hover {
+  background-color: #195cae;
+  transform: scale(1.07);
+}
+
+.media-button:focus-visible {
+  outline: 3px solid #8bbcff;
+  outline-offset: 3px;
+}
+
+.media-button svg {
+  width: 23px;
+  height: 23px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.media-button.is-recording {
+  background-color: #dc3545;
+}
+
+.media-button.is-recording:hover {
+  background-color: #b52a37;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .post {
@@ -113,28 +172,45 @@ dialog::backdrop {
   cursor: pointer;
 }
 
-.media-controls {
-  display: flex;
-  gap: 10px;
-  margin-top: 12px;
-}
-
-.media-controls button {
-  padding: 10px 15px;
-  border: none;
-  border-radius: 5px;
-  background-color: #2675d8;
-  color: white;
-  cursor: pointer;
-}
-
-.media-controls button:hover {
-  background-color: #195cae;
-}
-
 .post audio,
 .post video {
   display: block;
   max-width: 100%;
   margin-bottom: 10px;
+}
+
+@media (max-width: 600px) {
+  .container {
+    margin: 15px auto;
+    padding: 10px;
+  }
+
+  .timeline__posts {
+    min-height: 350px;
+    padding: 12px;
+  }
+
+  .timeline__form {
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .media-controls {
+    gap: 6px;
+  }
+
+  .media-button {
+    width: 40px;
+    height: 40px;
+  }
+
+  .media-button svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .timeline__input {
+    padding: 11px;
+    font-size: 14px;
+  }
 }
